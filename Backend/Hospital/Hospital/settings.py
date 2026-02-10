@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'core',
 ]
 
@@ -77,7 +80,7 @@ WSGI_APPLICATION = 'Hospital.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'HospitalDB',
+        'NAME': 'hospitalmanagementdatabase',
         'USER': 'postgres',
         'PASSWORD': 'Naveen@18',
         'HOST': 'localhost',
@@ -131,4 +134,11 @@ AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False, 
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': True,
 }
