@@ -64,10 +64,12 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 
-
+from django.utils import timezone
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
+        self.user.last_login = timezone.now()
+        self.user.save(update_fields=['last_login'])
         data['role'] = self.user.role
         data['username'] = self.user.username
         return data
