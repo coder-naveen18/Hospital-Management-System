@@ -1,14 +1,17 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
+from django.utils import timezone
+from django.contrib.auth import authenticate
+# from rest_framework.generics import RetrieveUpdateAPIView
+# from rest_framework.generics import CreateAPIView,UpdateAPIView, ListAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import SignupSerializer, CustomTokenObtainPairSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import TokenError
-from django.utils import timezone
-
+from rest_framework.permissions import IsAuthenticated
+from .models import Patient
+from .permissions import CanViewPatient,IsReceptionOrAdmin
+from .serializers import SignupSerializer,PatientRegistrationSerializer,PatientUpdateSerializer,PatientListSerializer, PatientDetailSerializer
 class SignupView(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -74,3 +77,65 @@ class LogoutView(APIView):
         response = Response({"message": "Logged out"})
         response.delete_cookie("refresh_token")
         return response
+
+
+class PatientViewSet(ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = PatientRegistrationSerializer
+    permission_classes = [IsAuthenticated, IsReceptionOrAdmin]
+    
+    def get_serializer_class(self):
+        if getattr(self, 'action', None) == 'create':
+            return PatientRegistrationSerializer
+        if getattr(self, 'action', None) in ['update', 'partial_update']:
+            return PatientUpdateSerializer
+        if getattr(self, 'action', None) == 'list':
+            return PatientListSerializer
+        if getattr(self, 'action', None) == 'retrieve':
+            return PatientDetailSerializer
+        return super().get_serializer_class()
+
+    def get_permissions(self):
+        # Use broader view permissions for listing/retrieving patients
+        if getattr(self, 'action', None) in ['list', 'retrieve']:
+            return [permission() for permission in [IsAuthenticated, CanViewPatient]]
+        # For create/update/delete, restrict to reception/admin as before
+        return [permission() for permission in [IsAuthenticated, IsReceptionOrAdmin]]
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+# class PatientRegistrationView(CreateAPIView):
+#     queryset = Patient.objects.all()
+#     serializer_class = PatientRegistrationSerializer
+#     permission_classes = [IsAuthenticated, IsReceptionOrAdmin]
+
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user)
+
+
+# class PatientUpdateView(UpdateAPIView):
+#     queryset = Patient.objects.all()
+#     serializer_class = PatientUpdateSerializer
+
+#     def perform_update(self, serializer):
+#         serializer.save(updated_by=self.request.user)
+
+
+# class PatientListView(ListAPIView):
+#     queryset = Patient.objects.all().order_by("created_at")
+#     serializer_class = PatientListSerializer
+#     permission_classes = [CanViewPatient, IsAuthenticated]
+
+# class PatientDetailView(RetrieveAPIView):
+#     queryset = Patient.objects.all()
+#     serializer_class = PatientDetailSerializer
+#     permission_classes = [CanViewPatient, IsAuthenticated]
+
+# class PatientDeleteView(DestroyAPIView):
+#     queryset = Patient.objects.all()
+#     serializer_class = PatientDetailSerializer
+#     permission_classes = [IsReceptionOrAdmin, IsAuthenticated]
