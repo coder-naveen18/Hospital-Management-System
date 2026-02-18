@@ -1,5 +1,11 @@
-h1 {
-  text-align: center;
-  margin: 0;
-  padding: 20px;
+@import "tailwindcss";
+
+@layer utilities {
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  .animate-bounce-slow {
+    animation: bounce-slow 4s ease-in-out infinite;
+  }
 }
