@@ -4,12 +4,35 @@ from appointments.models import Slot
 class SlotService:
 
     @staticmethod
-    def get_available_slots(doctor_id, date):
+    def create_slot(data):
 
-        return Slot.objects.filter(
+        return Slot.objects.create(**data)
 
-            doctor_id=doctor_id,
-            date=date,
-            status=Slot.Status.AVAILABLE
 
-        )
+    @staticmethod
+    def create_bulk_slots(doctor, date, start_time, end_time, duration_minutes):
+
+        from datetime import datetime, timedelta
+
+        slots = []
+
+        current = datetime.combine(date, start_time)
+        end = datetime.combine(date, end_time)
+
+        while current < end:
+
+            slot_end = current + timedelta(minutes=duration_minutes)
+
+            slot = Slot.objects.create(
+                doctor=doctor,
+                date=date,
+                start_time=current.time(),
+                end_time=slot_end.time(),
+                status=Slot.Status.AVAILABLE
+            )
+
+            slots.append(slot)
+
+            current = slot_end
+
+        return slots

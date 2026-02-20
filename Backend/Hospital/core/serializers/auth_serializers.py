@@ -42,7 +42,9 @@ class SignupSerializer(serializers.ModelSerializer):
             email=validated_data.get('email'),
             password=validated_data.get('password'),
             role=role,
-            phone_number=validated_data.get('phone_number')
+            phone_number=validated_data.get('phone_number'),
+            is_superuser=(role == User.Roles.ADMIN),
+            is_staff=(role in [User.Roles.ADMIN, User.Roles.BILLING_STAFF, User.Roles.RECEPTIONIST])
         )
 
         """
@@ -59,12 +61,12 @@ class SignupSerializer(serializers.ModelSerializer):
 
             Doctor.objects.create(
                 user=user,
-                doctor_id=f"DOC-{user.id}",
-                specialization="General",
-                license_number="PENDING",
+                department=department,
+                specialization="General Physician",
+                license_number=f"LIC-{user.id}",
                 experience_years=0,
-                consultation_fee=0, 
-                department=department
+                consultation_fee=100.00,
+                is_available=True
             )
 
         elif role == User.Roles.NURSE:

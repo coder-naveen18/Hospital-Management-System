@@ -11,6 +11,19 @@ class Appointment(models.Model):
         CANCELLED = "CANCELLED"
         FAILED = "FAILED"
 
+    class appointment_type(models.TextChoices):
+
+        CONSULTATION = "CONSULTATION"
+        FOLLOW_UP = "FOLLOW_UP"
+        EMERGENCY = "EMERGENCY"
+        ROUTINE_CHECKUP = "ROUTINE_CHECKUP"
+
+
+    class priority(models.TextChoices):
+
+        LOW = "LOW"
+        MEDIUM = "MEDIUM"
+        HIGH = "HIGH"
 
     appointment_id = models.UUIDField(
         default=uuid.uuid4,
@@ -32,7 +45,8 @@ class Appointment(models.Model):
 
     slot = models.OneToOneField(
         "appointments.Slot",
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        related_name="appointment"
     )
 
     booked_by = models.ForeignKey(
@@ -42,11 +56,13 @@ class Appointment(models.Model):
     )
 
     appointment_type = models.CharField(
-        max_length=50
+        max_length=50,
+        choices=appointment_type.choices
     )
 
     priority = models.CharField(
-        max_length=20
+        max_length=20,
+        choices=priority.choices
     )
 
     reason = models.TextField()

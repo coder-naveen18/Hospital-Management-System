@@ -8,16 +8,18 @@ from core.serializers import (
     DoctorCreateSerializer,
     DoctorUpdateSerializer
 )
+from core.permissions.doctor_permissions import CanUpdateDoctor
 
 
 class DoctorViewSet(ModelViewSet):
+    http_method_names = ["get", "post", "put", "patch"]
 
     queryset = Doctor.objects.select_related(
         "user",
         "department"
     ).all()
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanUpdateDoctor]
 
 
     def get_serializer_class(self):
@@ -27,7 +29,7 @@ class DoctorViewSet(ModelViewSet):
 
         if self.action == "retrieve":
             return DoctorDetailSerializer
-
+        
         if self.action == "create":
             return DoctorCreateSerializer
 

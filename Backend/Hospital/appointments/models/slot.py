@@ -5,7 +5,6 @@ from django.db import models
 class Slot(models.Model):
 
     class Status(models.TextChoices):
-
         AVAILABLE = "AVAILABLE"
         RESERVED = "RESERVED"
         BOOKED = "BOOKED"
