@@ -1,28 +1,36 @@
 // src/App.tsx
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
-import Hero from "./components/Home/Hero";
-import LivePulseBoard from "./components/Home/LivePulseBoard";
-import Services from "./components/Home/Services";
-import ExperienceCTA from "./components/Home/ExperienceCTA";
 import Footer from "./components/layout/Footer";
+
+// Import your Pages
+import Home from "./components/pages/Home";
+import Login from "./components/pages/Login";
+import Signup from "./components/pages/Signup";
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-orange-100">
-      <Navbar />
-      <main>
-        <Hero />
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <LivePulseBoard />
-          </div>
-        </section>
-        <Services id="services" />
-        <ExperienceCTA />
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-orange-100">
+        <Navbar />
+
+        <main>
+          <Routes>
+            {/* When path is "/", show the Home content */}
+            <Route path="/" element={<Home />} />
+
+            {/* When path is "/login", show the Login page */}
+            <Route path="/login" element={<Login />} />
+
+            {/* When path is "/signup", show the Signup page */}
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
+    </Router>
   );
 };
 
